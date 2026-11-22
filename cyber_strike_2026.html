@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full bg-slate-950 text-slate-100 select-none overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER STRIKE 2026 | سايبر سترايك 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Orbitron -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            cyan: '#00f3ff',
+                            pink: '#ff0055',
+                            purple: '#b000ff',
+                            yellow: '#ffe600',
+                            dark: '#070913',
+                            panel: 'rgba(15, 23, 42, 0.85)'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 20px rgba(0, 243, 255, 0.6), inset 0 0 10px rgba(0, 243, 255, 0.4)',
+                        'neon-pink': '0 0 20px rgba(255, 0, 85, 0.6), inset 0 0 10px rgba(255, 0, 85, 0.4)',
+                        'neon-purple': '0 0 25px rgba(176, 0, 255, 0.7)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Cairo', 'Orbitron', sans-serif;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .cyber-grid-bg {
+            background-color: #050711;
+            background-image: 
+                linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .glow-text-cyan {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+
+        .glow-text-pink {
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.8), 0 0 20px rgba(255, 0, 85, 0.4);
+        }
+
+        .cyber-card {
+            background: rgba(13, 18, 36, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+        }
+
+        .cyber-btn {
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+        
+        .cyber-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.6);
+        }
+
+        .cyber-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 40;
+            opacity: 0.6;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(5, 7, 17, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f3ff;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="h-full w-full cyber-grid-bg relative text-white">
+
+    <!-- Scanline visual effect overlay -->
+    <div class="scanlines"></div>
+
+    <!-- MAIN GAME CONTAINER -->
+    <div id="gameContainer" class="relative w-full h-full overflow-hidden flex flex-col justify-between">
+        
+        <!-- CANVAS (3D Hybrid Battle Field) -->
+        <canvas id="cyberCanvas" class="absolute inset-0 w-full h-full z-0 cursor-crosshair"></canvas>
+
+        <!-- HEADER TOP HUD (VISIBLE IN GAME) -->
+        <header id="topHud" class="hidden relative z-20 p-3 sm:p-5 flex justify-between items-center pointer-events-none">
+            <!-- Player Stats HUD -->
+            <div class="flex items-center space-x-3 space-x-reverse pointer-events-auto">
+                <div class="cyber-card p-2 sm:p-3 flex items-center gap-3">
+                    <div id="hudVehicleIcon" class="w-10 h-10 rounded bg-cyber-cyan/20 border border-cyber-cyan flex items-center justify-center text-cyber-cyan text-xl">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="hudPlayerName" class="font-bold text-sm sm:text-base text-white">اللاعب 1</span>
+                            <span id="hudRankBadge" class="text-xs bg-cyber-pink text-white px-2 py-0.5 rounded font-orbitron font-bold">PRO 2026</span>
+                        </div>
+                        <!-- Health & Energy Bars -->
+                        <div class="w-36 sm:w-48 bg-slate-900 rounded-full h-2.5 mt-1 border border-slate-700 overflow-hidden relative">
+                            <div id="hudHealthBar" class="bg-gradient-to-r from-red-600 to-cyber-pink h-full w-full transition-all duration-200"></div>
+                        </div>
+                        <div class="w-36 sm:w-48 bg-slate-900 rounded-full h-1.5 mt-1 border border-slate-700 overflow-hidden relative">
+                            <div id="hudEnergyBar" class="bg-gradient-to-r from-cyan-500 to-cyber-cyan h-full w-1/4 transition-all duration-200"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Timer & Server Status -->
+            <div class="hidden sm:flex flex-col items-center pointer-events-auto">
+                <div class="cyber-card px-5 py-1 text-center border-cyber-cyan">
+                    <div class="text-xs text-cyber-cyan tracking-wider font-orbitron">BATTLE TIME</div>
+                    <div id="hudTimer" class="text-2xl font-black font-orbitron text-white">03:00</div>
+                </div>
+                <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>سيرفر كازابلانكا (14ms)</span>
+                </div>
+            </div>
+
+            <!-- Score & Kills HUD -->
+            <div class="flex items-center gap-2 sm:gap-4 pointer-events-auto">
+                <div class="cyber-card px-3 py-2 text-right">
+                    <div class="text-xs text-slate-400">النقاط (Score)</div>
+                    <div id="hudScore" class="text-xl sm:text-2xl font-black font-orbitron text-cyber-yellow">0</div>
+                </div>
+                <div class="cyber-card px-3 py-2 text-right border-cyber-pink">
+                    <div class="text-xs text-slate-400">القتلات (Kills)</div>
+                    <div id="hudKills" class="text-xl sm:text-2xl font-black font-orbitron text-cyber-pink">0</div>
+                </div>
+                <!-- Audio Controls -->
+                <button id="btnToggleSound" class="cyber-card w-10 h-10 flex items-center justify-center text-cyber-cyan hover:text-white transition">
+                    <i class="fa-solid fa-volume-high text-lg" id="soundIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- LIVE KILL FEED & MINI LEADERBOARD (TOP LEFT/RIGHT IN GAME) -->
+        <div id="inGameFeeds" class="hidden relative z-20 px-4 pointer-events-none flex justify-between items-start">
+            <!-- Moroccan Live Kill Feed -->
+            <div id="killFeed" class="flex flex-col gap-1.5 max-w-xs text-xs font-semibold"></div>
+
+            <!-- Mini Live Leaderboard -->
+            <div class="cyber-card p-3 w-44 text-xs">
+                <div class="text-cyber-cyan font-bold border-b border-slate-700 pb-1 mb-2 flex justify-between">
+                    <span><i class="fa-solid fa-trophy text-amber-400"></i> الترتيب الحقيقي</span>
+                    <span class="text-[10px] text-slate-400">LIVE</span>
+                </div>
+                <ul id="miniLeaderboard" class="space-y-1">
+                    <!-- Dynamic List -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- TOUCH CONTROLS (VIRTUAL JOYSTICKS FOR MOBILE) -->
+        <div id="touchControls" class="hidden relative z-30 p-6 flex justify-between items-end pointer-events-auto">
+            <!-- Movement Joystick (Left) -->
+            <div id="moveStickContainer" class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-cyber-cyan/40 bg-slate-900/40 relative flex items-center justify-center backdrop-blur-sm">
+                <div id="moveStickKnob" class="w-12 h-12 rounded-full bg-gradient-to-tr from-cyber-cyan to-blue-600 shadow-neon-cyan absolute"></div>
+            </div>
+
+            <!-- Action & Fire Buttons (Right) -->
+            <div class="flex flex-col gap-3 items-center">
+                <button id="btnNitroMobile" class="w-14 h-14 rounded-full bg-cyber-pink/80 border-2 border-white text-white font-bold flex flex-col items-center justify-center text-xs shadow-neon-pink active:scale-95">
+                    <i class="fa-solid fa-bolt text-lg"></i>
+                    <span>سرعة</span>
+                </button>
+                <div id="aimStickContainer" class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-cyber-pink/40 bg-slate-900/40 relative flex items-center justify-center backdrop-blur-sm">
+                    <div id="aimStickKnob" class="w-12 h-12 rounded-full bg-gradient-to-tr from-cyber-pink to-purple-600 shadow-neon-pink absolute"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 1: LOBBY & MENU OVERLAY -->
+        <!-- ========================================== -->
+        <div id="menuOverlay" class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+            <div class="max-w-4xl w-full grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <!-- Left Panel: Profile & Vehicle Specs -->
+                <div class="md:col-span-5 cyber-card p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                            <h2 class="text-xl font-bold text-cyber-cyan flex items-center gap-2">
+                                <i class="fa-solid fa-id-card"></i> ملف السايبر 2026
+                            </h2>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded border border-emerald-500/40 font-orbitron">
+                                ONLINE
+                            </span>
+                        </div>
+
+                        <!-- Player Name Input -->
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">اسم المحارب (Player Tag)</label>
+                            <div class="relative">
+                                <input type="text" id="inputPlayerName" value="محارب_السايبر" class="w-full bg-slate-900/90 border border-cyber-cyan/40 rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-cyan font-bold" font-cairo placeholder="ادخل اسمك هنا...">
+                                <i class="fa-solid fa-pen text-cyber-cyan absolute left-3 top-3 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- Hovercraft Vehicle Selection -->
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-slate-300 mb-2">اختر مركبة القتال (Hovercar)</label>
+                            <div class="grid grid-cols-3 gap-2" id="vehicleSelectGrid">
+                                <button data-vehicle="apex" class="vehicle-btn active border-2 border-cyber-cyan bg-cyber-cyan/20 rounded p-2 text-center transition">
+                                    <i class="fa-solid fa-jet-fighter text-2xl text-cyber-cyan block mb-1"></i>
+                                    <span class="text-xs font-bold block">APEX 01</span>
+                                    <span class="text-[10px] text-slate-400 block">متوازنة</span>
+                                </button>
+                                <button data-vehicle="phantom" class="vehicle-btn border border-slate-700 bg-slate-900 rounded p-2 text-center transition hover:border-cyber-pink">
+                                    <i class="fa-solid fa-meteor text-2xl text-cyber-pink block mb-1"></i>
+                                    <span class="text-xs font-bold block">PHANTOM</span>
+                                    <span class="text-[10px] text-slate-400 block">سرعة هجومية</span>
+                                </button>
+                                <button data-vehicle="titan" class="vehicle-btn border border-slate-700 bg-slate-900 rounded p-2 text-center transition hover:border-cyber-yellow">
+                                    <i class="fa-solid fa-shield-halved text-2xl text-cyber-yellow block mb-1"></i>
+                                    <span class="text-xs font-bold block">TITAN X</span>
+                                    <span class="text-[10px] text-slate-400 block">درع فائق</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Regional Server Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">سيرفر المواجهة (Region)</label>
+                            <select id="serverSelect" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyber-cyan">
+                                <option value="casa">🇲🇦 سيرفر كازابلانكا 2026 (12ms)</option>
+                                <option value="mena">🌍 سيرفر شمال أفريقيا & الشرق الأوسط (28ms)</option>
+                                <option value="global">🌐 السيرفر العالمي الاحترافي Global Arena (45ms)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Career Stats Quick View -->
+                    <div class="mt-6 pt-4 border-t border-slate-800 grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-slate-900/60 p-2 rounded">
+                            <span class="text-[10px] text-slate-400 block">أعلى رصيد نقاط</span>
+                            <span id="statHighScore" class="font-orbitron font-bold text-cyber-yellow text-base">0</span>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded">
+                            <span class="text-[10px] text-slate-400 block">مجموع الانتصارات</span>
+                            <span id="statVictories" class="font-orbitron font-bold text-cyber-cyan text-base">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Game Branding & Launch -->
+                <div class="md:col-span-7 cyber-card p-6 flex flex-col justify-between border-cyber-pink/40 relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-cyber-pink/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div>
+                        <!-- Title Header -->
+                        <div class="text-center md:text-right mb-6">
+                            <span class="bg-gradient-to-r from-cyber-cyan to-cyber-pink text-transparent bg-clip-text font-orbitron font-black text-xs tracking-widest uppercase">
+                                NEXT-GEN MULTIPLAYER CYBER ARENA 2026
+                            </span>
+                            <h1 class="text-3xl sm:text-5xl font-black font-orbitron text-white mt-1 glow-text-cyan tracking-wider">
+                                CYBER STRIKE
+                            </h1>
+                            <p class="text-sm text-slate-300 font-semibold mt-2">
+                                معركة السايبر المستقبلية 2026: قد المركبة النيونية، دمر المنافسين، واحتل المرتبة الأولى أونلاين!
+                            </p>
+                        </div>
+
+                        <!-- Game Mode Selection Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                            <div id="modeArena" class="mode-card active border-2 border-cyber-cyan bg-cyber-cyan/10 p-3 rounded cursor-pointer transition hover:scale-105">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-sm text-cyber-cyan">ساحة الموت السريعة</span>
+                                    <i class="fa-solid fa-crosshair text-cyber-cyan"></i>
+                                </div>
+                                <p class="text-xs text-slate-300">قتال نيون مفتوح 2.5D ضد لاعبين وبوتات ذكية مع ترقيات فورية.</p>
+                            </div>
+                            <div id="modeSprint" class="mode-card border border-slate-700 bg-slate-900/70 p-3 rounded cursor-pointer transition hover:scale-105 hover:border-cyber-pink">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-sm text-white">سباق السرعة القتالي</span>
+                                    <i class="fa-solid fa-flag-checkered text-cyber-pink"></i>
+                                </div>
+                                <p class="text-xs text-slate-300">سباق طيران نيون حماسي مع إمكانية استخدام الأسلحة والتجاوز.</p>
+                            </div>
+                        </div>
+
+                        <!-- Controls Tutorial Quick Sheet -->
+                        <div class="bg-slate-900/80 p-3 rounded border border-slate-800 text-xs space-y-1">
+                            <div class="text-cyber-yellow font-bold mb-1 flex items-center gap-1">
+                                <i class="fa-solid fa-gamepad"></i> طريقة التحكم (Controls):
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-slate-300">
+                                <div>💻 <span class="font-semibold text-white">الكمبيوتر:</span> WASD / أسهم للحركة + الماوس لإطلاق النار + SHIFT للسرعة.</div>
+                                <div>📱 <span class="font-semibold text-white">الهاتف:</span> أزرار التحكم اللمسية (Virtual Joysticks) المزدوجة.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matchmaking Launch Button -->
+                    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                        <button id="btnStartGame" class="cyber-btn flex-1 bg-gradient-to-r from-cyber-cyan via-blue-600 to-cyber-pink py-4 font-black text-lg text-slate-950 font-orbitron hover:brightness-110 flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-play text-xl"></i>
+                            <span>دخول السيرفر واللعب (START MATCH)</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 2: MID-MATCH PERK UPGRADE OVERLAY -->
+        <!-- ========================================== -->
+        <div id="perkOverlay" class="hidden absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-lg">
+            <div class="max-w-xl w-full text-center">
+                <div class="text-cyber-yellow font-orbitron font-black text-sm tracking-widest animate-pulse mb-1">LEVEL UP REACHED!</div>
+                <h2 class="text-2xl sm:text-3xl font-black text-white glow-text-cyan mb-6">اختر ترقية التكنولوجيا المستقبلية ⚡</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="perkOptionsContainer">
+                    <!-- Dynamic Perk Options Injection -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 3: MATCH RESULTS / VICTORY OVERLAY -->
+        <!-- ========================================== -->
+        <div id="resultsOverlay" class="hidden absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl">
+            <div class="max-w-md w-full cyber-card p-6 text-center border-cyber-cyan relative">
+                <div class="w-16 h-16 rounded-full bg-cyber-cyan/20 border-2 border-cyber-cyan flex items-center justify-center mx-auto mb-3 text-cyber-cyan text-3xl">
+                    <i id="resIcon" class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 id="resTitle" class="text-2xl font-black font-orbitron text-white mb-1">انتصار مجيد! 🏆</h2>
+                <p id="resSubtitle" class="text-xs text-slate-300 mb-6">لقد دمرت الخصوم وسيطرت على سيرفر كازابلانكا 2026</p>
+
+                <div class="bg-slate-900/80 p-4 rounded border border-slate-800 space-y-3 mb-6 text-sm">
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">مجموع القتلات (Kills):</span>
+                        <span id="resKills" class="font-orbitron font-bold text-cyber-pink">12</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">النقاط الكلية (Score):</span>
+                        <span id="resScore" class="font-orbitron font-bold text-cyber-yellow">4,850</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">المرتبة المكتسبة (Rank):</span>
+                        <span id="resRank" class="font-orbitron font-bold text-cyber-cyan">MASTER CYBER I</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="btnPlayAgain" class="cyber-btn flex-1 bg-cyber-cyan text-slate-950 font-bold py-3 text-sm hover:brightness-110">
+                        <i class="fa-solid fa-rotate-right ml-1"></i> مواجهة جديدة
+                    </button>
+                    <button id="btnBackToMenu" class="cyber-btn flex-1 bg-slate-800 text-white font-bold py-3 text-sm hover:bg-slate-700">
+                         القائمة الرئيسية
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AUDIO SYSTEM (WEB AUDIO API SYNTHESIZER - NO EXTERNAL AUDIO FILES) -->
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playLaser() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.15);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playExplosion() {
+                if (this.muted || !this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * 0.3;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+
+            playPowerup() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+
+            playNitro() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(450, this.ctx.currentTime + 0.4);
+
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            }
+        }
+
+        const audioEngine = new SoundEngine();
+    </script>
+
+    <!-- MAIN GAME LOGIC ENGINE -->
+    <script>
+        // Moroccan & International Simulated Player Names for Bot Arena
+        const BOTS_NAMES_POOL = [
+            "أمين_كازا", "سفيان_الرباط", "أيوب_طنجة", "عمر_مراكش", 
+            "CYBER_KING_2026", "NEON_VIPER", "ATLAS_SHADOW", "FES_WARRIOR",
+            "ياسين_أغادير", "حمزة_وجدة", "TITAN_DEVIL", "NIGHT_PULSE"
+        ];
+
+        // Moroccan Darija Quick Kill Feed Quotes
+        const DARIJA_KILL_PHRASES = [
+            "سطا عليه ودمر المركبة 💥",
+            "جاب فيها الهدف بدقة نيونية ⚡",
+            "فركّع الدرع ومحاه من السيرفر 🔥",
+            "عطاه قاضية ثلاثية سريعة 🚀",
+            "حايدو من اللائحة فثانية 🎯"
+        ];
+
+        // Available Mid-Match Upgrade Perks
+        const GAME_PERKS = [
+            { id: 'triple', title: 'سلاح ثلاثي (Triple Laser)', desc: 'إطلاق 3 شعاعات بلازما بزاوية متسعة.', icon: 'fa-burst', color: 'text-cyber-cyan' },
+            { id: 'rapid', title: 'إطلاق سريع (Rapid Fire)', desc: 'زيادة سرعة وسلاسة إطلاق النار بنسبة 60%.', icon: 'fa-bolt-lightning', color: 'text-cyber-pink' },
+            { id: 'shield', title: 'درع طاقي فائق (EMP Shield)', desc: 'استعادة الدرع بالكامل مع تقليل الأضرار.', icon: 'fa-shield-cat', color: 'text-cyber-yellow' },
+            { id: 'nitro', title: 'معزز النيترو (Hyper Nitro)', desc: 'زيادة سرعة الحركة والتفحيط القتالي.', icon: 'fa-gauge-high', color: 'text-emerald-400' }
+        ];
+
+        // Global Canvas Setup & Game Variables
+        let canvas, ctx;
+        let gameActive = false;
+        let isPaused = false;
+        let gameTimeLeft = 180; // 3 Minutes per match
+        let matchTimerInterval = null;
+
+        // Player & Environment State
+        let player = {
+            x: 0, y: 0, vx: 0, vy: 0, angle: 0,
+            speed: 5.5, health: 100, maxHealth: 100,
+            energy: 0, level: 1, score: 0, kills: 0,
+            weaponType: 'single', fireRate: 200, lastShot: 0,
+            nitroActive: false, nitroCooldown: 0,
+            vehicle: 'apex', radius: 22
+        };
+
+        let keys = {};
+        let mouse = { x: 0, y: 0, worldX: 0, worldY: 0, isDown: false };
+
+        // Virtual Touch Joystick Control States
+        let touchMoveDir = { x: 0, y: 0, active: false };
+        let touchAimDir = { x: 0, y: 0, active: false };
+
+        // Game Entities
+        let bots = [];
+        let bullets = [];
+        let particles = [];
+        let powerOrbs = [];
+        let shockwaves = [];
+
+        // Screen Shake & Camera Effect
+        let camera = { x: 0, y: 0 };
+        let screenShake = 0;
+
+        // Init App on Load
+        window.addEventListener('load', () => {
+            canvas = document.getElementById('cyberCanvas');
+            ctx = canvas.getContext('2d');
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            setupEventListeners();
+            loadSavedStats();
+        });
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function loadSavedStats() {
+            const hs = localStorage.getItem('cs2026_highscore') || '0';
+            const vic = localStorage.getItem('cs2026_victories') || '0';
+            document.getElementById('statHighScore').innerText = parseInt(hs).toLocaleString();
+            document.getElementById('statVictories').innerText = vic;
+        }
+
+        // ====================================================
+        // EVENT LISTENERS & CONTROLS SETUP
+        // ====================================================
+        function setupEventListeners() {
+            // Keyboard Listeners
+            window.addEventListener('keydown', e => {
+                keys[e.key.toLowerCase()] = true;
+                if (e.key === 'Shift') activateNitro();
+            });
+            window.addEventListener('keyup', e => {
+                keys[e.key.toLowerCase()] = false;
+            });
+
+            // Mouse Aim & Shoot
+            window.addEventListener('mousemove', e => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+            window.addEventListener('mousedown', e => {
+                if (gameActive && e.button === 0) {
+                    mouse.isDown = true;
+                    audioEngine.init();
+                }
+            });
+            window.addEventListener('mouseup', () => { mouse.isDown = false; });
+
+            // Vehicle Selection UI
+            document.querySelectorAll('.vehicle-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.vehicle-btn').forEach(b => {
+                        b.classList.remove('active', 'border-2', 'border-cyber-cyan', 'bg-cyber-cyan/20');
+                        b.classList.add('border-slate-700', 'bg-slate-900');
+                    });
+                    const target = e.currentTarget;
+                    target.classList.add('active', 'border-2', 'border-cyber-cyan', 'bg-cyber-cyan/20');
+                    player.vehicle = target.dataset.vehicle;
+                });
+            });
+
+            // Audio Toggle Button
+            document.getElementById('btnToggleSound').addEventListener('click', () => {
+                audioEngine.muted = !audioEngine.muted;
+                const icon = document.getElementById('soundIcon');
+                if (audioEngine.muted) {
+                    icon.className = 'fa-solid fa-volume-xmark text-red-500';
+                } else {
+                    icon.className = 'fa-solid fa-volume-high text-cyber-cyan';
+                }
+            });
+
+            // Mobile Nitro Button
+            document.getElementById('btnNitroMobile').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                activateNitro();
+            });
+
+            // Start Game Button
+            document.getElementById('btnStartGame').addEventListener('click', () => {
+                audioEngine.init();
+                startCyberMatch();
+            });
+
+            // Restart Match & Menu Buttons
+            document.getElementById('btnPlayAgain').addEventListener('click', () => {
+                document.getElementById('resultsOverlay').classList.add('hidden');
+                startCyberMatch();
+            });
+            document.getElementById('btnBackToMenu').addEventListener('click', () => {
+                document.getElementById('resultsOverlay').classList.add('hidden');
+                document.getElementById('menuOverlay').classList.remove('hidden');
+                document.getElementById('topHud').classList.add('hidden');
+                document.getElementById('inGameFeeds').classList.add('hidden');
+                document.getElementById('touchControls').classList.add('hidden');
+                gameActive = false;
+            });
+
+            // Setup Touch Virtual Joysticks
+            setupJoysticks();
+        }
+
+        // Setup Virtual Joysticks for Touch devices
+        function setupJoysticks() {
+            const moveContainer = document.getElementById('moveStickContainer');
+            const moveKnob = document.getElementById('moveStickKnob');
+            const aimContainer = document.getElementById('aimStickContainer');
+            const aimKnob = document.getElementById('aimStickKnob');
+
+            // Move Joystick Touch Handle
+            const handleJoystick = (e, container, knob, callback) => {
+                const rect = container.getBoundingClientRect();
+                const touch = e.touches[0] || e.changedTouches[0];
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                let dx = touch.clientX - centerX;
+                let dy = touch.clientY - centerY;
+                const dist = Math.hypot(dx, dy);
+                const maxRadius = rect.width / 2 - 20;
+
+                if (dist > maxRadius) {
+                    dx = (dx / dist) * maxRadius;
+                    dy = (dy / dist) * maxRadius;
+                }
+
+                knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                callback(dx / maxRadius, dy / maxRadius, true);
+            };
+
+            const resetKnob = (knob, callback) => {
+                knob.style.transform = `translate(0px, 0px)`;
+                callback(0, 0, false);
+            };
+
+            // Touch Move Listeners
+            moveContainer.addEventListener('touchstart', e => handleJoystick(e, moveContainer, moveKnob, (x, y, act) => { touchMoveDir = { x, y, active: act }; }));
+            moveContainer.addEventListener('touchmove', e => { e.preventDefault(); handleJoystick(e, moveContainer, moveKnob, (x, y, act) => { touchMoveDir = { x, y, active: act }; }); });
+            moveContainer.addEventListener('touchend', () => resetKnob(moveKnob, (x, y, act) => { touchMoveDir = { x, y, active: act }; }));
+
+            // Touch Aim Listeners
+            aimContainer.addEventListener('touchstart', e => handleJoystick(e, aimContainer, aimKnob, (x, y, act) => { touchAimDir = { x, y, active: act }; }));
+            aimContainer.addEventListener('touchmove', e => { e.preventDefault(); handleJoystick(e, aimContainer, aimKnob, (x, y, act) => { touchAimDir = { x, y, active: act }; }); });
+            aimContainer.addEventListener('touchend', () => resetKnob(aimKnob, (x, y, act) => { touchAimDir = { x, y, active: act }; }));
+        }
+
+        // ====================================================
+        // GAME START & INIT
+        // ====================================================
+        function startCyberMatch() {
+            const nameInput = document.getElementById('inputPlayerName').value.trim() || 'محارب_السايبر';
+            document.getElementById('hudPlayerName').innerText = nameInput;
+
+            // Reset Player
+            player.x = 0;
+            player.y = 0;
+            player.vx = 0;
+            player.vy = 0;
+            player.health = 100;
+            player.energy = 0;
+            player.level = 1;
+            player.score = 0;
+            player.kills = 0;
+            player.weaponType = 'single';
+            player.fireRate = 200;
+
+            // Apply vehicle stats
+            if (player.vehicle === 'phantom') player.speed = 7.0;
+            else if (player.vehicle === 'titan') { player.speed = 4.8; player.health = 140; player.maxHealth = 140; }
+            else player.speed = 5.8;
+
+            // Clear entities
+            bots = [];
+            bullets = [];
+            particles = [];
+            powerOrbs = [];
+            shockwaves = [];
+
+            // Spawn Simulated Online Bots (8 Bots)
+            for (let i = 0; i < 8; i++) {
+                spawnBot(BOTS_NAMES_POOL[i % BOTS_NAMES_POOL.length]);
+            }
+
+            // Spawn Initial Cyber Energy Orbs
+            for (let i = 0; i < 25; i++) {
+                spawnOrb();
+            }
+
+            // UI Adjustments
+            document.getElementById('menuOverlay').classList.add('hidden');
+            document.getElementById('topHud').classList.remove('hidden');
+            document.getElementById('inGameFeeds').classList.remove('hidden');
+
+            // Detect touch screen to show joysticks
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                document.getElementById('touchControls').classList.remove('hidden');
+            }
+
+            // Start Timer
+            gameTimeLeft = 180;
+            updateHudTimer();
+            clearInterval(matchTimerInterval);
+            matchTimerInterval = setInterval(() => {
+                if (!gameActive || isPaused) return;
+                gameTimeLeft--;
+                updateHudTimer();
+                if (gameTimeLeft <= 0) {
+                    endMatch(true);
+                }
+            }, 1000);
+
+            gameActive = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function spawnBot(name) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 600 + Math.random() * 800;
+            bots.push({
+                id: 'bot_' + Math.random(),
+                name: name,
+                x: Math.cos(angle) * dist,
+                y: Math.sin(angle) * dist,
+                vx: 0, vy: 0,
+                angle: Math.random() * Math.PI * 2,
+                health: 90,
+                maxHealth: 90,
+                score: Math.floor(Math.random() * 300),
+                kills: Math.floor(Math.random() * 3),
+                radius: 20,
+                lastShot: 0,
+                color: '#ff0055'
+            });
+        }
+
+        function spawnOrb() {
+            powerOrbs.push({
+                x: (Math.random() - 0.5) * 3000,
+                y: (Math.random() - 0.5) * 3000,
+                radius: 8 + Math.random() * 4,
+                pulse: Math.random() * Math.PI * 2
+            });
+        }
+
+        function activateNitro() {
+            if (player.nitroCooldown <= 0) {
+                player.nitroActive = true;
+                player.nitroCooldown = 300; // frames
+                audioEngine.playNitro();
+                addShockwave(player.x, player.y, '#00f3ff');
+                setTimeout(() => { player.nitroActive = false; }, 2000);
+            }
+        }
+
+        function updateHudTimer() {
+            const m = Math.floor(gameTimeLeft / 60).toString().padStart(2, '0');
+            const s = (gameTimeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('hudTimer').innerText = `${m}:${s}`;
+        }
+
+        // ====================================================
+        // MAIN GAME UPDATE & RENDER LOOP
+        // ====================================================
+        function gameLoop(timestamp) {
+            if (!gameActive) return;
+
+            if (!isPaused) {
+                updateGame(timestamp);
+            }
+            renderGame();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateGame(now) {
+            // Decrement Nitro Cooldown
+            if (player.nitroCooldown > 0) player.nitroCooldown--;
+
+            // Player Movement (Keyboard WASD + Touch Joystick)
+            let moveX = 0, moveY = 0;
+            if (keys['w'] || keys['arrowup']) moveY -= 1;
+            if (keys['s'] || keys['arrowdown']) moveY += 1;
+            if (keys['a'] || keys['arrowleft']) moveX -= 1;
+            if (keys['d'] || keys['arrowright']) moveX += 1;
+
+            if (touchMoveDir.active) {
+                moveX = touchMoveDir.x;
+                moveY = touchMoveDir.y;
+            }
+
+            // Apply acceleration
+            const currentSpeed = player.speed * (player.nitroActive ? 1.8 : 1.0);
+            if (moveX !== 0 || moveY !== 0) {
+                const len = Math.hypot(moveX, moveY);
+                player.vx += (moveX / len) * currentSpeed * 0.2;
+                player.vy += (moveY / len) * currentSpeed * 0.2;
+            }
+
+            // Friction & Speed Cap
+            player.vx *= 0.88;
+            player.vy *= 0.88;
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Player Aim Rotation
+            if (touchAimDir.active) {
+                player.angle = Math.atan2(touchAimDir.y, touchAimDir.x);
+                // Auto fire when touching aim joystick
+                if (now - player.lastShot > player.fireRate) {
+                    fireWeapon(player, true);
+                    player.lastShot = now;
+                }
+            } else {
+                // Mouse Aim
+                const canvasCenterX = canvas.width / 2;
+                const canvasCenterY = canvas.height / 2;
+                player.angle = Math.atan2(mouse.y - canvasCenterY, mouse.x - canvasCenterX);
+
+                if (mouse.isDown && now - player.lastShot > player.fireRate) {
+                    fireWeapon(player, true);
+                    player.lastShot = now;
+                }
+            }
+
+            // Smooth Camera Follow Player
+            camera.x += (player.x - camera.x) * 0.1;
+            camera.y += (player.y - camera.y) * 0.1;
+
+            // Screen Shake decay
+            if (screenShake > 0) screenShake *= 0.9;
+
+            // Update Bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.life--;
+
+                // Add trail particles
+                if (Math.random() < 0.5) {
+                    particles.push({
+                        x: b.x, y: b.y,
+                        vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5,
+                        life: 12, maxLife: 12, size: 2.5, color: b.color
+                    });
+                }
+
+                // Check collision with Player
+                if (!b.isPlayer) {
+                    const distP = Math.hypot(b.x - player.x, b.y - player.y);
+                    if (distP < player.radius + b.radius) {
+                        player.health -= 12;
+                        screenShake = 12;
+                        audioEngine.playExplosion();
+                        addShockwave(player.x, player.y, '#ff0055');
+                        bullets.splice(i, 1);
+
+                        if (player.health <= 0) {
+                            endMatch(false);
+                        }
+                        continue;
+                    }
+                }
+
+                // Check collision with Bots
+                if (b.isPlayer) {
+                    for (let j = bots.length - 1; j >= 0; j--) {
+                        const bot = bots[j];
+                        const distB = Math.hypot(b.x - bot.x, b.y - bot.y);
+                        if (distB < bot.radius + b.radius) {
+                            bot.health -= 25;
+                            audioEngine.playExplosion();
+                            createExplosionParticles(b.x, b.y, '#00f3ff', 8);
+                            bullets.splice(i, 1);
+
+                            // Bot Destroyed
+                            if (bot.health <= 0) {
+                                player.kills++;
+                                player.score += 250;
+                                player.energy += 35;
+                                addKillFeedEntry(`أنت دمرت ${bot.name} ${DARIJA_KILL_PHRASES[Math.floor(Math.random() * DARIJA_KILL_PHRASES.length)]}`);
+                                createExplosionParticles(bot.x, bot.y, '#ff0055', 25);
+                                addShockwave(bot.x, bot.y, '#ff0055');
+
+                                // Respawn Bot
+                                bots.splice(j, 1);
+                                setTimeout(() => spawnBot(BOTS_NAMES_POOL[Math.floor(Math.random() * BOTS_NAMES_POOL.length)]), 3000);
+
+                                // Check Mid-match Level Up
+                                checkLevelUp();
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                if (b && b.life <= 0) bullets.splice(i, 1);
+            }
+
+            // Update Bots AI & Movement
+            bots.forEach(bot => {
+                const distToPlayer = Math.hypot(player.x - bot.x, player.y - bot.y);
+                bot.angle = Math.atan2(player.y - bot.y, player.x - bot.x);
+
+                // Simple AI movement
+                if (distToPlayer > 180) {
+                    bot.vx += Math.cos(bot.angle) * 0.4;
+                    bot.vy += Math.sin(bot.angle) * 0.4;
+                }
+                bot.vx *= 0.88;
+                bot.vy *= 0.88;
+                bot.x += bot.vx;
+                bot.y += bot.vy;
+
+                // AI Shoot Player if in range
+                if (distToPlayer < 450 && now - bot.lastShot > 800) {
+                    fireWeapon(bot, false);
+                    bot.lastShot = now;
+                }
+            });
+
+            // Update Power Orbs Collection
+            for (let i = powerOrbs.length - 1; i >= 0; i--) {
+                const orb = powerOrbs[i];
+                orb.pulse += 0.05;
+
+                const dist = Math.hypot(player.x - orb.x, player.y - orb.y);
+                if (dist < player.radius + orb.radius + 10) {
+                    player.energy += 15;
+                    player.score += 50;
+                    audioEngine.playPowerup();
+                    createExplosionParticles(orb.x, orb.y, '#ffe600', 10);
+                    powerOrbs.splice(i, 1);
+                    spawnOrb();
+
+                    checkLevelUp();
+                }
+            }
+
+            // Update Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            // Update Shockwaves
+            for (let i = shockwaves.length - 1; i >= 0; i--) {
+                const sw = shockwaves[i];
+                sw.radius += 4;
+                sw.alpha -= 0.04;
+                if (sw.alpha <= 0) shockwaves.splice(i, 1);
+            }
+
+            // Update HUD elements
+            document.getElementById('hudHealthBar').style.width = `${Math.max(0, (player.health / player.maxHealth) * 100)}%`;
+            document.getElementById('hudEnergyBar').style.width = `${Math.min(100, player.energy)}%`;
+            document.getElementById('hudScore').innerText = player.score.toLocaleString();
+            document.getElementById('hudKills').innerText = player.kills;
+
+            // Refresh Mini Leaderboard UI
+            updateMiniLeaderboard();
+        }
+
+        // Fire Weapon System
+        function fireWeapon(shooter, isPlayer) {
+            const speed = 16;
+            const color = isPlayer ? '#00f3ff' : '#ff0055';
+
+            audioEngine.playLaser();
+
+            if (isPlayer && shooter.weaponType === 'triple') {
+                const angles = [shooter.angle - 0.2, shooter.angle, shooter.angle + 0.2];
+                angles.forEach(ang => {
+                    bullets.push({
+                        x: shooter.x + Math.cos(ang) * 25,
+                        y: shooter.y + Math.sin(ang) * 25,
+                        vx: Math.cos(ang) * speed,
+                        vy: Math.sin(ang) * speed,
+                        life: 60, radius: 4, isPlayer, color
+                    });
+                });
+            } else {
+                bullets.push({
+                    x: shooter.x + Math.cos(shooter.angle) * 25,
+                    y: shooter.y + Math.sin(shooter.angle) * 25,
+                    vx: Math.cos(shooter.angle) * speed,
+                    vy: Math.sin(shooter.angle) * speed,
+                    life: 60, radius: 4, isPlayer, color
+                });
+            }
+        }
+
+        // Mid-Match Level Up & Perk Choice Trigger
+        function checkLevelUp() {
+            if (player.energy >= 100) {
+                player.energy = 0;
+                player.level++;
+                isPaused = true;
+                showPerkSelection();
+            }
+        }
+
+        function showPerkSelection() {
+            const container = document.getElementById('perkOptionsContainer');
+            container.innerHTML = '';
+
+            // Shuffle perks
+            const shuffled = [...GAME_PERKS].sort(() => 0.5 - Math.random()).slice(0, 3);
+            shuffled.forEach(perk => {
+                const card = document.createElement('div');
+                card.className = 'cyber-card p-4 hover:border-cyber-cyan cursor-pointer transition flex flex-col items-center justify-between hover:scale-105';
+                card.innerHTML = `
+                    <div class="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-2xl ${perk.color} mb-3 border border-slate-700">
+                        <i class="fa-solid ${perk.icon}"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-white mb-1">${perk.title}</h3>
+                    <p class="text-xs text-slate-400 mb-4">${perk.desc}</p>
+                    <button class="cyber-btn w-full bg-cyber-cyan/20 border border-cyber-cyan text-cyber-cyan py-1.5 text-xs font-bold">تفعيل (SELECT)</button>
+                `;
+                card.onclick = () => applyPerk(perk.id);
+                container.appendChild(card);
+            });
+
+            document.getElementById('perkOverlay').classList.remove('hidden');
+        }
+
+        function applyPerk(perkId) {
+            if (perkId === 'triple') player.weaponType = 'triple';
+            if (perkId === 'rapid') player.fireRate = 100;
+            if (perkId === 'shield') player.health = player.maxHealth;
+            if (perkId === 'nitro') player.speed += 1.5;
+
+            document.getElementById('perkOverlay').classList.add('hidden');
+            isPaused = false;
+        }
+
+        function addKillFeedEntry(text) {
+            const feed = document.getElementById('killFeed');
+            const item = document.createElement('div');
+            item.className = 'bg-slate-900/90 border-r-2 border-cyber-pink text-white px-2.5 py-1 rounded backdrop-blur animate-fade-in shadow-lg';
+            item.innerText = text;
+            feed.prepend(item);
+
+            if (feed.children.length > 4) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        function updateMiniLeaderboard() {
+            const all = [
+                { name: document.getElementById('hudPlayerName').innerText + ' (أنت)', score: player.score, isPlayer: true },
+                ...bots.map(b => ({ name: b.name, score: b.score, isPlayer: false }))
+            ].sort((a, b) => b.score - a.score).slice(0, 4);
+
+            const lb = document.getElementById('miniLeaderboard');
+            lb.innerHTML = all.map((item, idx) => `
+                <li class="flex justify-between items-center ${item.isPlayer ? 'text-cyber-cyan font-bold' : 'text-slate-300'}">
+                    <span>${idx + 1}. ${item.name}</span>
+                    <span class="font-orbitron text-[10px]">${item.score}</span>
+                </li>
+            `).join('');
+        }
+
+        function createExplosionParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 6;
+                particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 20 + Math.random() * 15,
+                    maxLife: 35,
+                    size: 2 + Math.random() * 3,
+                    color: color
+                });
+            }
+        }
+
+        function addShockwave(x, y, color) {
+            shockwaves.push({ x, y, radius: 10, alpha: 0.8, color });
+        }
+
+        // ====================================================
+        // RENDER GRAPHICS ENGINE (CANVAS 2.5D HYBRID)
+        // ====================================================
+        function renderGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+
+            // Screen Shake Effect
+            const shakeX = (Math.random() - 0.5) * screenShake;
+            const shakeY = (Math.random() - 0.5) * screenShake;
+            ctx.translate(canvas.width / 2 - camera.x + shakeX, canvas.height / 2 - camera.y + shakeY);
+
+            // Draw 3D Perspective Grid Arena Floor
+            drawCyberGridFloor();
+
+            // Draw Power Orbs
+            powerOrbs.forEach(orb => {
+                ctx.save();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ffe600';
+                ctx.fillStyle = '#ffe600';
+                ctx.beginPath();
+                ctx.arc(orb.x, orb.y, orb.radius + Math.sin(orb.pulse) * 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw Shockwaves
+            shockwaves.forEach(sw => {
+                ctx.save();
+                ctx.strokeStyle = sw.color;
+                ctx.lineWidth = 3;
+                ctx.globalAlpha = sw.alpha;
+                ctx.beginPath();
+                ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Draw Bullets
+            bullets.forEach(b => {
+                ctx.save();
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = b.color;
+                ctx.fillStyle = b.color;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw Bots
+            bots.forEach(bot => drawHovercraft(bot.x, bot.y, bot.angle, bot.color, bot.name, bot.health, bot.maxHealth));
+
+            // Draw Player Hovercraft
+            drawHovercraft(player.x, player.y, player.angle, '#00f3ff', document.getElementById('hudPlayerName').innerText, player.health, player.maxHealth, true);
+
+            // Draw Particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life / p.maxLife;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            ctx.restore();
+        }
+
+        // Draw Dynamic Neon Grid Arena Floor
+        function drawCyberGridFloor() {
+            const gridSize = 100;
+            const startX = Math.floor((camera.x - canvas.width) / gridSize) * gridSize;
+            const endX = Math.floor((camera.x + canvas.width) / gridSize) * gridSize;
+            const startY = Math.floor((camera.y - canvas.height) / gridSize) * gridSize;
+            const endY = Math.floor((camera.y + canvas.height) / gridSize) * gridSize;
+
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.08)';
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            for (let x = startX; x <= endX; x += gridSize) {
+                ctx.moveTo(x, startY);
+                ctx.lineTo(x, endY);
+            }
+            for (let y = startY; y <= endY; y += gridSize) {
+                ctx.moveTo(startX, y);
+                ctx.lineTo(endX, y);
+            }
+            ctx.stroke();
+        }
+
+        // Draw Futuristic Cyber Hovercraft
+        function drawHovercraft(x, y, angle, color, name, hp, maxHp, isMainPlayer = false) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Player Name Tag & Health Bar Above Vehicle
+            ctx.font = 'bold 11px Cairo';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText(name, 0, -32);
+
+            // Health bar container
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+            ctx.fillRect(-20, -26, 40, 4);
+            ctx.fillStyle = color;
+            ctx.fillRect(-20, -26, (hp / maxHp) * 40, 4);
+
+            // Rotate Hovercraft Body
+            ctx.rotate(angle);
+
+            // Glow effect
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = color;
+
+            // Nitro Thrust Particles
+            if (isMainPlayer && player.nitroActive) {
+                ctx.fillStyle = '#ff0055';
+                ctx.beginPath();
+                ctx.arc(-24, 0, 8 + Math.random() * 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Chassis Body Outer Polygon
+            ctx.fillStyle = '#090d1f';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+
+            ctx.beginPath();
+            ctx.moveTo(22, 0);       // Nose
+            ctx.lineTo(-14, -16);   // Left Wing
+            ctx.lineTo(-20, -8);    // Left Engine
+            ctx.lineTo(-20, 8);     // Right Engine
+            ctx.lineTo(-14, 16);    // Right Wing
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Cockpit Shield Window
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(4, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // ====================================================
+        // END MATCH & GAME OVER RESULTS OVERLAY
+        // ====================================================
+        function endMatch(isVictory) {
+            gameActive = false;
+            clearInterval(matchTimerInterval);
+
+            // Save High Scores
+            const currentHs = parseInt(localStorage.getItem('cs2026_highscore') || '0');
+            if (player.score > currentHs) {
+                localStorage.setItem('cs2026_highscore', player.score.toString());
+            }
+
+            if (isVictory) {
+                const victories = parseInt(localStorage.getItem('cs2026_victories') || '0') + 1;
+                localStorage.setItem('cs2026_victories', victories.toString());
+            }
+
+            // Populate Results UI
+            document.getElementById('resKills').innerText = player.kills;
+            document.getElementById('resScore').innerText = player.score.toLocaleString();
+
+            if (isVictory) {
+                document.getElementById('resTitle').innerText = 'انتصار مجيد! 🏆';
+                document.getElementById('resSubtitle').innerText = 'سطرت اسمك في قمة سيرفر كازابلانكا 2026!';
+                document.getElementById('resRank').innerText = 'CYBER LEGEND 2026';
+            } else {
+                document.getElementById('resTitle').innerText = 'تم تدمير المركبة! 💥';
+                document.getElementById('resSubtitle').innerText = 'حاول مجدداً واستخدم النيترو والترقيات للتفوق.';
+                document.getElementById('resRank').innerText = 'SILVER CYBER III';
+            }
+
+            document.getElementById('topHud').classList.add('hidden');
+            document.getElementById('inGameFeeds').classList.add('hidden');
+            document.getElementById('touchControls').classList.add('hidden');
+            document.getElementById('resultsOverlay').classList.remove('hidden');
+
+            loadSavedStats();
+        }
+    </script>
+</body>
+</html>
